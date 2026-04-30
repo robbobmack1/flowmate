@@ -4,19 +4,30 @@ import { useState } from 'react'
 import { createClient } from '../../supabase'
 import { useRouter } from 'next/navigation'
 
-export default function Login() {
-  const [email, setEmail] = useState('')
+export default function UpdatePassword() {
   const [password, setPassword] = useState('')
+  const [confirm, setConfirm] = useState('')
   const [error, setError] = useState('')
+  const [done, setDone] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
-  const handleLogin = async () => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+  const handleUpdate = async () => {
+    if (password !== confirm) {
+      setError('Passwords do not match')
+      return
+    }
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters')
+      return
+    }
+
+    const { error } = await supabase.auth.updateUser({ password })
     if (error) {
       setError(error.message)
     } else {
-      router.push('/dashboard')
+      setDone(true)
+      setTimeout(() => router.push('/dashboard'), 3000)
     }
   }
 
@@ -51,40 +62,45 @@ export default function Login() {
 
       {/* Card */}
       <div style={{ backgroundColor: '#243550', borderRadius: '16px', padding: '40px', width: '100%', maxWidth: '420px', boxShadow: '0 8px 32px rgba(0,0,0,0.3)', position: 'relative', zIndex: 1 }}>
-        <h1 style={{ color: 'white', fontSize: '26px', fontWeight: 'bold', margin: '0 0 8px 0' }}>Welcome back</h1>
-        <p style={{ color: '#A0B4C8', fontSize: '15px', margin: '0 0 32px 0' }}>Log in to your FlowMate account</p>
 
-        <input
-          type="email"
-          placeholder="Email address"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          style={{ width: '100%', padding: '14px', marginBottom: '16px', borderRadius: '10px', border: '1px solid #2E3F5C', fontSize: '15px', backgroundColor: '#1B2A4A', color: 'white', boxSizing: 'border-box', outline: 'none' }}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={{ width: '100%', padding: '14px', marginBottom: '16px', borderRadius: '10px', border: '1px solid #2E3F5C', fontSize: '15px', backgroundColor: '#1B2A4A', color: 'white', boxSizing: 'border-box', outline: 'none' }}
-        />
+        {!done ? (
+          <>
+            <h1 style={{ color: 'white', fontSize: '26px', fontWeight: 'bold', margin: '0 0 8px 0' }}>Set new password</h1>
+            <p style={{ color: '#A0B4C8', fontSize: '15px', margin: '0 0 32px 0' }}>Choose a strong password for your account</p>
 
-        {error && <p style={{ color: '#FF6B6B', marginBottom: '16px', fontSize: '14px' }}>{error}</p>}
+            <input
+              type="password"
+              placeholder="New password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={{ width: '100%', padding: '14px', marginBottom: '16px', borderRadius: '10px', border: '1px solid #2E3F5C', fontSize: '15px', backgroundColor: '#1B2A4A', color: 'white', boxSizing: 'border-box', outline: 'none' }}
+            />
+            <input
+              type="password"
+              placeholder="Confirm new password"
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+              style={{ width: '100%', padding: '14px', marginBottom: '16px', borderRadius: '10px', border: '1px solid #2E3F5C', fontSize: '15px', backgroundColor: '#1B2A4A', color: 'white', boxSizing: 'border-box', outline: 'none' }}
+            />
 
-        <button
-          onClick={handleLogin}
-          style={{ width: '100%', padding: '14px', backgroundColor: '#2E75B6', color: 'white', border: 'none', borderRadius: '10px', fontSize: '16px', fontWeight: '600', cursor: 'pointer', marginBottom: '20px' }}
-        >
-          Log In
-        </button>
+            {error && <p style={{ color: '#FF6B6B', marginBottom: '16px', fontSize: '14px' }}>{error}</p>}
 
-      <p style={{ textAlign: 'center', color: '#A0B4C8', fontSize: '14px', margin: '0 0 12px 0' }}>
-  No account yet?{' '}
-  <a href="/auth/signup" style={{ color: '#4A9FD4', textDecoration: 'none', fontWeight: '600' }}>Sign up free</a>
-</p>
-<p style={{ textAlign: 'center', color: '#A0B4C8', fontSize: '14px', margin: 0 }}>
-  <a href="/auth/reset" style={{ color: '#64748B', textDecoration: 'none' }}>Forgot your password?</a>
-</p>
+            <button
+              onClick={handleUpdate}
+              style={{ width: '100%', padding: '14px', backgroundColor: '#2E75B6', color: 'white', border: 'none', borderRadius: '10px', fontSize: '16px', fontWeight: '600', cursor: 'pointer' }}
+            >
+              Update Password
+            </button>
+          </>
+        ) : (
+          <>
+            <div style={{ textAlign: 'center', marginBottom: '24px', fontSize: '48px' }}>✅</div>
+            <h1 style={{ color: 'white', fontSize: '26px', fontWeight: 'bold', margin: '0 0 8px 0', textAlign: 'center' }}>Password updated!</h1>
+            <p style={{ color: '#A0B4C8', fontSize: '15px', textAlign: 'center', lineHeight: '1.6' }}>
+              Your password has been changed successfully. Taking you to your dashboard in a moment...
+            </p>
+          </>
+        )}
       </div>
     </div>
   )

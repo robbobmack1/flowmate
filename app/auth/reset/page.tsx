@@ -2,21 +2,21 @@
 
 import { useState } from 'react'
 import { createClient } from '../../supabase'
-import { useRouter } from 'next/navigation'
 
-export default function Login() {
+export default function ResetPassword() {
   const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [sent, setSent] = useState(false)
   const [error, setError] = useState('')
-  const router = useRouter()
   const supabase = createClient()
 
-  const handleLogin = async () => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+  const handleReset = async () => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/update-password`
+    })
     if (error) {
       setError(error.message)
     } else {
-      router.push('/dashboard')
+      setSent(true)
     }
   }
 
@@ -51,40 +51,45 @@ export default function Login() {
 
       {/* Card */}
       <div style={{ backgroundColor: '#243550', borderRadius: '16px', padding: '40px', width: '100%', maxWidth: '420px', boxShadow: '0 8px 32px rgba(0,0,0,0.3)', position: 'relative', zIndex: 1 }}>
-        <h1 style={{ color: 'white', fontSize: '26px', fontWeight: 'bold', margin: '0 0 8px 0' }}>Welcome back</h1>
-        <p style={{ color: '#A0B4C8', fontSize: '15px', margin: '0 0 32px 0' }}>Log in to your FlowMate account</p>
+        
+        {!sent ? (
+          <>
+            <h1 style={{ color: 'white', fontSize: '26px', fontWeight: 'bold', margin: '0 0 8px 0' }}>Reset password</h1>
+            <p style={{ color: '#A0B4C8', fontSize: '15px', margin: '0 0 32px 0' }}>Enter your email and we will send you a reset link</p>
 
-        <input
-          type="email"
-          placeholder="Email address"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          style={{ width: '100%', padding: '14px', marginBottom: '16px', borderRadius: '10px', border: '1px solid #2E3F5C', fontSize: '15px', backgroundColor: '#1B2A4A', color: 'white', boxSizing: 'border-box', outline: 'none' }}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={{ width: '100%', padding: '14px', marginBottom: '16px', borderRadius: '10px', border: '1px solid #2E3F5C', fontSize: '15px', backgroundColor: '#1B2A4A', color: 'white', boxSizing: 'border-box', outline: 'none' }}
-        />
+            <input
+              type="email"
+              placeholder="Email address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              style={{ width: '100%', padding: '14px', marginBottom: '16px', borderRadius: '10px', border: '1px solid #2E3F5C', fontSize: '15px', backgroundColor: '#1B2A4A', color: 'white', boxSizing: 'border-box', outline: 'none' }}
+            />
 
-        {error && <p style={{ color: '#FF6B6B', marginBottom: '16px', fontSize: '14px' }}>{error}</p>}
+            {error && <p style={{ color: '#FF6B6B', marginBottom: '16px', fontSize: '14px' }}>{error}</p>}
 
-        <button
-          onClick={handleLogin}
-          style={{ width: '100%', padding: '14px', backgroundColor: '#2E75B6', color: 'white', border: 'none', borderRadius: '10px', fontSize: '16px', fontWeight: '600', cursor: 'pointer', marginBottom: '20px' }}
-        >
-          Log In
-        </button>
+            <button
+              onClick={handleReset}
+              style={{ width: '100%', padding: '14px', backgroundColor: '#2E75B6', color: 'white', border: 'none', borderRadius: '10px', fontSize: '16px', fontWeight: '600', cursor: 'pointer', marginBottom: '20px' }}
+            >
+              Send Reset Link
+            </button>
 
-      <p style={{ textAlign: 'center', color: '#A0B4C8', fontSize: '14px', margin: '0 0 12px 0' }}>
-  No account yet?{' '}
-  <a href="/auth/signup" style={{ color: '#4A9FD4', textDecoration: 'none', fontWeight: '600' }}>Sign up free</a>
-</p>
-<p style={{ textAlign: 'center', color: '#A0B4C8', fontSize: '14px', margin: 0 }}>
-  <a href="/auth/reset" style={{ color: '#64748B', textDecoration: 'none' }}>Forgot your password?</a>
-</p>
+            <p style={{ textAlign: 'center', color: '#A0B4C8', fontSize: '14px', margin: 0 }}>
+              <a href="/auth/login" style={{ color: '#64748B', textDecoration: 'none' }}>Back to login</a>
+            </p>
+          </>
+        ) : (
+          <>
+            <div style={{ textAlign: 'center', marginBottom: '24px', fontSize: '48px' }}>📧</div>
+            <h1 style={{ color: 'white', fontSize: '26px', fontWeight: 'bold', margin: '0 0 8px 0', textAlign: 'center' }}>Check your email!</h1>
+            <p style={{ color: '#A0B4C8', fontSize: '15px', margin: '0 0 32px 0', textAlign: 'center', lineHeight: '1.6' }}>
+              We sent a password reset link to <strong style={{ color: 'white' }}>{email}</strong>. Click the link in the email to reset your password.
+            </p>
+            <a href="/auth/login" style={{ display: 'block', textAlign: 'center', color: '#4A9FD4', textDecoration: 'none', fontSize: '15px' }}>
+              Back to login
+            </a>
+          </>
+        )}
       </div>
     </div>
   )
