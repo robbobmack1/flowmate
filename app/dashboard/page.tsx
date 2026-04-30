@@ -193,7 +193,20 @@ export default function Dashboard() {
             FlowMate is quietly observing your email patterns in the background. The more you use your email, the smarter the suggestions become. Check back regularly for new automation opportunities tailored specifically to how you work.
           </p>
         </div>
-
+        {/* Feedback Card */}
+        <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '28px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', marginTop: '24px', borderLeft: '5px solid #00897B' }}>
+          <h2 style={{ color: '#00897B', fontSize: '18px', fontWeight: 'bold', margin: '0 0 8px 0' }}>💬 Share Your Feedback</h2>
+          <p style={{ color: '#64748B', fontSize: '14px', margin: '0 0 20px 0', lineHeight: '1.6' }}>
+            You are one of FlowMate's first ever users! Your feedback directly shapes what we build next. It takes less than 2 minutes.
+          </p>
+          
+            <a href="https://tally.so/r/ZjPjB5"
+            target="_blank"
+            style={{ display: 'inline-block', padding: '12px 24px', backgroundColor: '#00897B', color: 'white', borderRadius: '10px', textDecoration: 'none', fontSize: '15px', fontWeight: '600' }}
+          >
+            Give Feedback 
+          </a>
+        </div>
       </div>
     </div>
   )
