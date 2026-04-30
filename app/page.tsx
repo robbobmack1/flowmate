@@ -26,7 +26,19 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <div style={{ backgroundColor: '#1B2A4A', padding: '100px 60px', textAlign: 'center' }}>
+      {/* Hero Section */}
+<div style={{ backgroundColor: '#1B2A4A', padding: '100px 60px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+
+  {/* Background waves */}
+  <svg style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', opacity: 0.08 }} viewBox="0 0 1440 320" preserveAspectRatio="none">
+    <path d="M0,160 Q180,80 360,160 Q540,240 720,160 Q900,80 1080,160 Q1260,240 1440,160 L1440,320 L0,320 Z" fill="#2E75B6"/>
+  </svg>
+  <svg style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', opacity: 0.05 }} viewBox="0 0 1440 320" preserveAspectRatio="none">
+    <path d="M0,200 Q180,120 360,200 Q540,280 720,200 Q900,120 1080,200 Q1260,280 1440,200 L1440,320 L0,320 Z" fill="#4A9FD4"/>
+  </svg>
+  <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', opacity: 0.06 }} viewBox="0 0 1440 200" preserveAspectRatio="none">
+    <path d="M0,200 Q360,120 720,200 Q1080,280 1440,200 L1440,0 L0,0 Z" fill="#2E75B6"/>
+  </svg>
         <div style={{ display: 'inline-block', backgroundColor: '#2E75B6', color: 'white', padding: '6px 16px', borderRadius: '20px', fontSize: '13px', fontWeight: '600', marginBottom: '24px', letterSpacing: '0.5px' }}>
           🚀 NOW IN BETA — FREE TO JOIN
         </div>
