@@ -73,7 +73,12 @@ export default function Dashboard() {
           <div>
             <div style={{ padding: '12px 20px', backgroundColor: '#E8F5E9', borderRadius: '8px', color: '#00897B', fontWeight: 'bold', display: 'inline-block', marginBottom: '20px' }}>
               ✅ Gmail Connected — Ghost Mode Active!
-            </div>
+            </div><button
+  onClick={connectGmail}
+  style={{ marginLeft: '12px', padding: '8px 16px', backgroundColor: 'transparent', color: '#2E75B6', border: '1px solid #2E75B6', borderRadius: '8px', fontSize: '14px', cursor: 'pointer' }}
+>
+  🔄 Reconnect Gmail
+</button>
             <br />
             <button
               onClick={getSuggestion}
