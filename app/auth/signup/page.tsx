@@ -16,7 +16,7 @@ export default function SignUp() {
     if (error) {
       setError(error.message)
     } else {
-      router.push('/auth/login')
+      router.push('/welcome')
     }
   }
 
