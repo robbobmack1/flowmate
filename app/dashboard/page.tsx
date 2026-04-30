@@ -19,6 +19,15 @@ export default function Dashboard() {
       if (user?.app_metadata?.providers?.includes('google')) {
         setGmailConnected(true)
       }
+      if (user?.id) {
+        const { data: automations } = await supabase
+          .from('automations')
+          .select('*')
+          .eq('user_id', user.id)
+        if (automations && automations.length > 0) {
+          setAutomationsAccepted(automations.length)
+        }
+      }
     }
     getUser()
   }, [])
@@ -62,10 +71,24 @@ export default function Dashboard() {
     setLoading(false)
   }
 
-  const acceptAutomation = () => {
+  const acceptAutomation = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    
+    console.log('Session user ID:', session?.user?.id)
+    console.log('Suggestion:', suggestion)
+
+    const { data, error } = await supabase.from('automations').insert({
+      user_id: session?.user?.id,
+      suggestion: suggestion,
+      accepted_at: new Date().toISOString()
+    })
+
+    console.log('Insert result:', data, 'Error:', error)
+
     setAutomationsAccepted(prev => prev + 1)
     setAccepted(true)
   }
+  
 
   const efficiencyScore = Math.min(automationsAccepted * 10, 100)
   const timeSaved = automationsAccepted * 3
@@ -89,11 +112,17 @@ export default function Dashboard() {
 <span style={{ color: 'white', fontWeight: 'bold', fontSize: '20px', letterSpacing: '-0.5px', marginLeft: '8px' }}>FlowMate</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ width: '36px', height: '36px', backgroundColor: '#2E75B6', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ color: 'white', fontWeight: 'bold', fontSize: '14px' }}>{user?.email?.[0]?.toUpperCase() || 'U'}</span>
-          </div>
-          <span style={{ color: '#A0B4C8', fontSize: '14px' }}>{user?.email || 'Loading...'}</span>
-        </div>
+  <div style={{ width: '36px', height: '36px', backgroundColor: '#2E75B6', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <span style={{ color: 'white', fontWeight: 'bold', fontSize: '14px' }}>{user?.email?.[0]?.toUpperCase() || 'U'}</span>
+  </div>
+  <span style={{ color: '#A0B4C8', fontSize: '14px' }}>{user?.email || 'Loading...'}</span>
+  <button
+    onClick={async () => { await supabase.auth.signOut(); window.location.href = '/' }}
+    style={{ padding: '8px 16px', backgroundColor: 'transparent', color: '#A0B4C8', border: '1px solid #2E3F5C', borderRadius: '8px', fontSize: '13px', cursor: 'pointer' }}
+  >
+    Log out
+  </button>
+</div>
       </nav>
 
       <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '40px 20px' }}>
