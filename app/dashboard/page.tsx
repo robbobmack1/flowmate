@@ -96,34 +96,34 @@ export default function Dashboard() {
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#F0F4F8', fontFamily: 'Arial, sans-serif' }}>
       
-      {/* Navbar */}
-      <nav style={{ backgroundColor: '#1B2A4A', padding: '0 40px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <svg width="48" height="32" viewBox="0 0 48 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M4 2 L4 26" stroke="white" strokeWidth="3" strokeLinecap="round"/>
-  <path d="M4 2 L18 2" stroke="white" strokeWidth="3" strokeLinecap="round"/>
-  <path d="M4 13 L15 13" stroke="white" strokeWidth="3" strokeLinecap="round"/>
-  <path d="M4 26 Q4 32 11 32 Q18 32 18 26" stroke="#4A9FD4" strokeWidth="3" strokeLinecap="round"/>
-  <path d="M18 26 L18 2" stroke="white" strokeWidth="3" strokeLinecap="round"/>
-  <path d="M18 2 L30 18" stroke="white" strokeWidth="3" strokeLinecap="round"/>
-  <path d="M30 18 L42 2" stroke="white" strokeWidth="3" strokeLinecap="round"/>
-  <path d="M42 2 L42 26" stroke="white" strokeWidth="3" strokeLinecap="round"/>
-</svg>
-<span style={{ color: 'white', fontWeight: 'bold', fontSize: '20px', letterSpacing: '-0.5px', marginLeft: '8px' }}>FlowMate</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-  <div style={{ width: '36px', height: '36px', backgroundColor: '#2E75B6', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-    <span style={{ color: 'white', fontWeight: 'bold', fontSize: '14px' }}>{user?.email?.[0]?.toUpperCase() || 'U'}</span>
+     {/* Navbar */}
+<nav style={{ backgroundColor: '#1B2A4A', padding: '0 20px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+    <svg width="48" height="32" viewBox="0 0 48 32" fill="none">
+      <path d="M4 2 L4 26" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+      <path d="M4 2 L18 2" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+      <path d="M4 13 L15 13" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+      <path d="M4 26 Q4 32 11 32 Q18 32 18 26" stroke="#4A9FD4" strokeWidth="3" strokeLinecap="round"/>
+      <path d="M18 26 L18 2" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+      <path d="M18 2 L30 18" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+      <path d="M30 18 L42 2" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+      <path d="M42 2 L42 26" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+    </svg>
+    <span style={{ color: 'white', fontWeight: 'bold', fontSize: '20px', letterSpacing: '-0.5px' }}>FlowMate</span>
   </div>
-  <span style={{ color: '#A0B4C8', fontSize: '14px' }}>{user?.email || 'Loading...'}</span>
-  <button
-    onClick={async () => { await supabase.auth.signOut(); window.location.href = '/' }}
-    style={{ padding: '8px 16px', backgroundColor: 'transparent', color: '#A0B4C8', border: '1px solid #2E3F5C', borderRadius: '8px', fontSize: '13px', cursor: 'pointer' }}
-  >
-    Log out
-  </button>
-</div>
-      </nav>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+    <div style={{ width: '32px', height: '32px', backgroundColor: '#2E75B6', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+      <span style={{ color: 'white', fontWeight: 'bold', fontSize: '14px' }}>{user?.email?.[0]?.toUpperCase() || 'U'}</span>
+    </div>
+    <span style={{ color: '#A0B4C8', fontSize: '13px', maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.email || 'Loading...'}</span>
+    <button
+      onClick={async () => { await supabase.auth.signOut(); window.location.href = '/' }}
+      style={{ padding: '6px 12px', backgroundColor: 'transparent', color: '#A0B4C8', border: '1px solid #2E3F5C', borderRadius: '8px', fontSize: '12px', cursor: 'pointer', flexShrink: 0 }}
+    >
+      Log out
+    </button>
+  </div>
+</nav>
 
       <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '40px 20px' }}>
         
@@ -138,29 +138,31 @@ export default function Dashboard() {
         </div>
 
         {/* Stats Row */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '32px' }}>
-          
-          {/* Efficiency Score */}
-          <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', borderTop: '4px solid #2E75B6' }}>
-            <p style={{ color: '#64748B', fontSize: '13px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 8px 0' }}>Efficiency Score</p>
-            <p style={{ color: '#1B2A4A', fontSize: '42px', fontWeight: 'bold', margin: '0 0 4px 0' }}>{efficiencyScore}<span style={{ fontSize: '20px', color: '#64748B' }}>/100</span></p>
-            <p style={{ color: '#2E75B6', fontSize: '13px', margin: 0 }}>Accept automations to increase</p>
-          </div>
+<div style={{ marginBottom: '32px' }}>
+  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px', marginBottom: '20px' }}>
+    
+    {/* Efficiency Score */}
+    <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', borderTop: '4px solid #2E75B6' }}>
+      <p style={{ color: '#64748B', fontSize: '13px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 8px 0' }}>Efficiency Score</p>
+      <p style={{ color: '#1B2A4A', fontSize: '42px', fontWeight: 'bold', margin: '0 0 4px 0' }}>{efficiencyScore}<span style={{ fontSize: '20px', color: '#64748B' }}>/100</span></p>
+      <p style={{ color: '#2E75B6', fontSize: '13px', margin: 0 }}>Accept automations to increase</p>
+    </div>
 
-          {/* Time Saved */}
-          <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', borderTop: '4px solid #00897B' }}>
-            <p style={{ color: '#64748B', fontSize: '13px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 8px 0' }}>Time Saved</p>
-            <p style={{ color: '#1B2A4A', fontSize: '42px', fontWeight: 'bold', margin: '0 0 4px 0' }}>{timeSaved}<span style={{ fontSize: '20px', color: '#64748B' }}>hrs</span></p>
-            <p style={{ color: '#00897B', fontSize: '13px', margin: 0 }}>This month</p>
-          </div>
+    {/* Time Saved */}
+    <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', borderTop: '4px solid #00897B' }}>
+      <p style={{ color: '#64748B', fontSize: '13px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 8px 0' }}>Time Saved</p>
+      <p style={{ color: '#1B2A4A', fontSize: '42px', fontWeight: 'bold', margin: '0 0 4px 0' }}>{timeSaved}<span style={{ fontSize: '20px', color: '#64748B' }}>hrs</span></p>
+      <p style={{ color: '#00897B', fontSize: '13px', margin: 0 }}>This month</p>
+    </div>
+  </div>
 
-          {/* Automations Running */}
-          <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', borderTop: '4px solid #E65100' }}>
-            <p style={{ color: '#64748B', fontSize: '13px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 8px 0' }}>Automations</p>
-            <p style={{ color: '#1B2A4A', fontSize: '42px', fontWeight: 'bold', margin: '0 0 4px 0' }}>{automationsAccepted}</p>
-            <p style={{ color: '#E65100', fontSize: '13px', margin: 0 }}>Currently running</p>
-          </div>
-        </div>
+  {/* Automations — centred below */}
+  <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', borderTop: '4px solid #E65100', maxWidth: '48%', margin: '0 auto' }}>
+    <p style={{ color: '#64748B', fontSize: '13px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 8px 0' }}>Automations</p>
+    <p style={{ color: '#1B2A4A', fontSize: '42px', fontWeight: 'bold', margin: '0 0 4px 0' }}>{automationsAccepted}</p>
+    <p style={{ color: '#E65100', fontSize: '13px', margin: 0 }}>Currently running</p>
+  </div>
+</div>
 
         {/* Gmail Connection Card */}
         <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '28px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', marginBottom: '24px' }}>

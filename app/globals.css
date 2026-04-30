@@ -1,26 +1,69 @@
-@import "tailwindcss";
-
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Arial, sans-serif;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+
+  /* Landing page hero */
+  h1 {
+    font-size: 32px !important;
+  }
+
+  /* Fix padding on mobile */
+  div[style*="padding: '100px 60px'"] {
+    padding: 60px 24px !important;
+  }
+
+  /* Stack the three stat cards vertically */
+  div[style*="gridTemplateColumns: 'repeat(3"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Stack pricing cards vertically */
+  div[style*="gridTemplateColumns: 'repeat(3, 1fr)'"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Stack how it works cards */
+  div[style*="gridTemplateColumns: 'repeat(3, 1fr)'"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Fix sound familiar grid */
+  div[style*="gridTemplateColumns: 'repeat(2, 1fr)'"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Navbar padding */
+  nav {
+    padding: 0 20px !important;
+  }
+
+  /* Dashboard max width */
+  div[style*="maxWidth: '1000px'"] {
+    padding: 20px 16px !important;
+  }
+
+  /* Welcome page */
+  div[style*="maxWidth: '560px'"] {
+    max-width: 100% !important;
+  }
+
+  /* Auth cards */
+  div[style*="maxWidth: '420px'"] {
+    max-width: 100% !important;
+  }
+
+  /* Buttons full width on mobile */
+  div[style*="justifyContent: 'center'"] {
+    flex-direction: column !important;
+    align-items: center !important;
+  }
 }
