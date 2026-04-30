@@ -115,7 +115,7 @@ export default function Dashboard() {
     <div style={{ width: '32px', height: '32px', backgroundColor: '#2E75B6', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
       <span style={{ color: 'white', fontWeight: 'bold', fontSize: '14px' }}>{user?.email?.[0]?.toUpperCase() || 'U'}</span>
     </div>
-    <span style={{ color: '#A0B4C8', fontSize: '13px', maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.email || 'Loading...'}</span>
+    <span style={{ color: '#A0B4C8', fontSize: '13px', maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'none' }} className="desktop-only">{user?.email || 'Loading...'}</span>
     <button
       onClick={async () => { await supabase.auth.signOut(); window.location.href = '/' }}
       style={{ padding: '6px 12px', backgroundColor: 'transparent', color: '#A0B4C8', border: '1px solid #2E3F5C', borderRadius: '8px', fontSize: '12px', cursor: 'pointer', flexShrink: 0 }}
