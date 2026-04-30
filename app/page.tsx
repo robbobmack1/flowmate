@@ -7,10 +7,17 @@ export default function Home() {
       {/* Navbar */}
       <nav style={{ backgroundColor: '#1B2A4A', padding: '0 60px', height: '68px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: '34px', height: '34px', backgroundColor: '#2E75B6', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ color: 'white', fontWeight: 'bold', fontSize: '18px' }}>F</span>
-          </div>
-          <span style={{ color: 'white', fontWeight: 'bold', fontSize: '22px' }}>FlowMate</span>
+          <svg width="48" height="32" viewBox="0 0 48 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M4 2 L4 26" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+  <path d="M4 2 L18 2" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+  <path d="M4 13 L15 13" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+  <path d="M4 26 Q4 32 11 32 Q18 32 18 26" stroke="#4A9FD4" strokeWidth="3" strokeLinecap="round"/>
+  <path d="M18 26 L18 2" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+  <path d="M18 2 L30 18" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+  <path d="M30 18 L42 2" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+  <path d="M42 2 L42 26" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+</svg>
+<span style={{ color: 'white', fontWeight: 'bold', fontSize: '22px', marginLeft: '8px' }}>FlowMate</span>
         </div>
         <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
           <Link href="/auth/login" style={{ color: '#A0B4C8', textDecoration: 'none', fontSize: '15px' }}>Log in</Link>

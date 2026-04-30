@@ -76,10 +76,17 @@ export default function Dashboard() {
       {/* Navbar */}
       <nav style={{ backgroundColor: '#1B2A4A', padding: '0 40px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: '32px', height: '32px', backgroundColor: '#2E75B6', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ color: 'white', fontWeight: 'bold', fontSize: '16px' }}>F</span>
-          </div>
-          <span style={{ color: 'white', fontWeight: 'bold', fontSize: '20px', letterSpacing: '-0.5px' }}>FlowMate</span>
+          <svg width="48" height="32" viewBox="0 0 48 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M4 2 L4 26" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+  <path d="M4 2 L18 2" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+  <path d="M4 13 L15 13" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+  <path d="M4 26 Q4 32 11 32 Q18 32 18 26" stroke="#4A9FD4" strokeWidth="3" strokeLinecap="round"/>
+  <path d="M18 26 L18 2" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+  <path d="M18 2 L30 18" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+  <path d="M30 18 L42 2" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+  <path d="M42 2 L42 26" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+</svg>
+<span style={{ color: 'white', fontWeight: 'bold', fontSize: '20px', letterSpacing: '-0.5px', marginLeft: '8px' }}>FlowMate</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{ width: '36px', height: '36px', backgroundColor: '#2E75B6', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
