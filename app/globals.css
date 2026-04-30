@@ -8,66 +8,55 @@ body {
   font-family: Arial, sans-serif;
 }
 
-/* Mobile responsiveness */
+@media (min-width: 769px) {
+  .desktop-only {
+    display: block !important;
+  }
+}
+
 @media (max-width: 768px) {
 
-  /* Landing page hero */
-  h1 {
-    font-size: 32px !important;
+  nav {
+    padding: 0 16px !important;
   }
 
-  /* Fix padding on mobile */
   div[style*="padding: '100px 60px'"] {
-    padding: 60px 24px !important;
+    padding: 60px 20px !important;
   }
 
-  /* Stack the three stat cards vertically */
-  div[style*="gridTemplateColumns: 'repeat(3"] {
-    grid-template-columns: 1fr !important;
+  div[style*="padding: '80px 60px'"] {
+    padding: 60px 20px !important;
   }
 
-  /* Stack pricing cards vertically */
-  div[style*="gridTemplateColumns: 'repeat(3, 1fr)'"] {
-    grid-template-columns: 1fr !important;
+  div[style*="padding: '40px 60px'"] {
+    padding: 30px 20px !important;
   }
 
-  /* Stack how it works cards */
-  div[style*="gridTemplateColumns: 'repeat(3, 1fr)'"] {
-    grid-template-columns: 1fr !important;
+  div[style*="gap: '80px'"] {
+    gap: 32px !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
   }
 
-  /* Fix sound familiar grid */
+  div[style*="gap: '16px', alignItems: 'center'"] {
+    gap: 8px !important;
+  }
+
   div[style*="gridTemplateColumns: 'repeat(2, 1fr)'"] {
     grid-template-columns: 1fr !important;
   }
 
-  /* Navbar padding */
-  nav {
-    padding: 0 20px !important;
+  div[style*="gridTemplateColumns: 'repeat(3, 1fr)'"] {
+    grid-template-columns: 1fr !important;
   }
 
-  /* Dashboard max width */
-  div[style*="maxWidth: '1000px'"] {
-    padding: 20px 16px !important;
+  div[style*="gap: '24px'"] {
+    gap: 16px !important;
   }
 
-  /* Welcome page */
-  div[style*="maxWidth: '560px'"] {
-    max-width: 100% !important;
-  }
-
-  /* Auth cards */
-  div[style*="maxWidth: '420px'"] {
-    max-width: 100% !important;
-  }
-
-  /* Buttons full width on mobile */
-  div[style*="justifyContent: 'center'"] {
+  div[style*="justifyContent: 'center', flexWrap: 'wrap'"] {
     flex-direction: column !important;
     align-items: center !important;
-  }
-}@media (min-width: 769px) {
-  .desktop-only {
-    display: block !important;
+    gap: 12px !important;
   }
 }

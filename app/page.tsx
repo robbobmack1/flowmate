@@ -48,7 +48,7 @@ export default function Home() {
         <p style={{ color: '#A0B4C8', fontSize: '20px', maxWidth: '600px', margin: '0 auto 40px auto', lineHeight: '1.7' }}>
           FlowMate watches how your team works and automatically suggests time-saving automations — no technical knowledge required.
         </p>
-        <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap', flexDirection: 'column', alignItems: 'center' }}>
           <Link href="/auth/signup" style={{ backgroundColor: '#2E75B6', color: 'white', padding: '16px 36px', borderRadius: '10px', textDecoration: 'none', fontSize: '17px', fontWeight: '600' }}>
             Start For Free →
           </Link>
@@ -78,7 +78,8 @@ export default function Home() {
         <h2 style={{ color: '#1B2A4A', fontSize: '36px', fontWeight: 'bold', margin: '0 0 12px 0' }}>How FlowMate works</h2>
         <p style={{ color: '#64748B', fontSize: '18px', margin: '0 auto 60px auto', maxWidth: '500px' }}>Three steps to saving hours every week</p>
         
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '40px', maxWidth: '900px', margin: '0 auto' }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '40px', marginBottom: '40px' }}></div>
           {[
             { step: '1', icon: '🔗', title: 'Connect your tools', desc: 'Link your Gmail and Google Sheets in under 60 seconds. No technical setup required.' },
             { step: '2', icon: '👻', title: 'Ghost Mode observes', desc: 'FlowMate quietly watches how you work for 7 days without touching anything.' },
@@ -101,7 +102,7 @@ export default function Home() {
           <h2 style={{ color: '#1B2A4A', fontSize: '36px', fontWeight: 'bold', margin: '0 0 12px 0', textAlign: 'center' }}>Sound familiar?</h2>
           <p style={{ color: '#64748B', fontSize: '18px', textAlign: 'center', margin: '0 auto 60px auto', maxWidth: '500px' }}>These are the tasks FlowMate eliminates for small businesses every day</p>
           
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '40px', maxWidth: '900px', margin: '0 auto' }}>
             {[
               '📋 Copying data from emails into spreadsheets manually',
               '📧 Sending the same follow-up emails over and over',
@@ -123,7 +124,7 @@ export default function Home() {
         <h2 style={{ color: '#1B2A4A', fontSize: '36px', fontWeight: 'bold', margin: '0 0 12px 0' }}>Simple, honest pricing</h2>
         <p style={{ color: '#64748B', fontSize: '18px', margin: '0 auto 60px auto' }}>Start free. Upgrade when you are ready.</p>
         
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', maxWidth: '900px', margin: '0 auto' }}>
+        <div style={{ backgroundColor: 'white', padding: '80px 20px', textAlign: 'center' }}>
           {[
             { name: 'Starter', price: 'Free', color: '#64748B', features: ['3 active automations', 'Gmail only', '5 AI suggestions/month', '1 user'] },
             { name: 'Growth', price: '£29/mo', color: '#2E75B6', features: ['Unlimited automations', 'Gmail + Sheets + Slack', 'Unlimited suggestions', 'Up to 10 users'], highlight: true },
@@ -149,7 +150,7 @@ export default function Home() {
       </div>
 
       {/* CTA Section */}
-      <div style={{ backgroundColor: '#1B2A4A', padding: '80px 60px', textAlign: 'center' }}>
+      <div style={{ backgroundColor: '#1B2A4A', padding: '80px 20px', textAlign: 'center' }}>
         <h2 style={{ color: 'white', fontSize: '40px', fontWeight: 'bold', margin: '0 0 16px 0' }}>Ready to reclaim your time?</h2>
         <p style={{ color: '#A0B4C8', fontSize: '18px', margin: '0 auto 40px auto', maxWidth: '500px' }}>Join businesses already saving hours every week with FlowMate.</p>
         <Link href="/auth/signup" style={{ backgroundColor: '#2E75B6', color: 'white', padding: '16px 40px', borderRadius: '10px', textDecoration: 'none', fontSize: '18px', fontWeight: '600' }}>
