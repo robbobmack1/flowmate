@@ -171,9 +171,27 @@ useEffect(() => {
       </div>
 
       {/* Footer */}
-      <div style={{ backgroundColor: '#0F1C30', padding: '30px 60px', textAlign: 'center' }}>
-        <p style={{ color: '#64748B', fontSize: '14px', margin: 0 }}>© 2026 FlowMate. Built for small businesses that want their time back.</p>
-      </div>
+      <div style={{ backgroundColor: '#0F1C30', padding: '40px 60px' }}>
+  <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <svg width="32" height="22" viewBox="0 0 48 32" fill="none">
+        <path d="M4 2 L4 26" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+        <path d="M4 2 L18 2" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+        <path d="M4 13 L15 13" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+        <path d="M4 26 Q4 32 11 32 Q18 32 18 26" stroke="#4A9FD4" strokeWidth="3" strokeLinecap="round"/>
+        <path d="M18 26 L18 2" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+        <path d="M18 2 L30 18" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+        <path d="M30 18 L42 2" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+        <path d="M42 2 L42 26" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+      </svg>
+      <span style={{ color: 'white', fontWeight: 'bold', fontSize: '16px' }}>FlowMate</span>
+    </div>
+    <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
+      <a href="tel:+447494073988" style={{ color: '#64748B', fontSize: '14px', textDecoration: 'none' }}>📞 +44 7494 073988</a>
+    </div>
+    <p style={{ color: '#64748B', fontSize: '13px', margin: 0 }}>© 2026 FlowMate. All rights reserved.</p>
+  </div>
+</div>
 
     </div>
   )
