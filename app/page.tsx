@@ -1,6 +1,17 @@
+'use client'
+
 import Link from 'next/link'
+import { useState, useEffect } from 'react'
 
 export default function Home() {
+  const [isMobile, setIsMobile] = useState(false)
+
+useEffect(() => {
+  const check = () => setIsMobile(window.innerWidth < 768)
+  check()
+  window.addEventListener('resize', check)
+  return () => window.removeEventListener('resize', check)
+}, [])
   return (
     <div style={{ fontFamily: 'Arial, sans-serif', margin: 0, padding: 0 }}>
 
@@ -101,8 +112,9 @@ export default function Home() {
         <div style={{ maxWidth: '900px', margin: '0 auto' }}>
           <h2 style={{ color: '#1B2A4A', fontSize: '36px', fontWeight: 'bold', margin: '0 0 12px 0', textAlign: 'center' }}>Sound familiar?</h2>
           <p style={{ color: '#64748B', fontSize: '18px', textAlign: 'center', margin: '0 auto 60px auto', maxWidth: '500px' }}>These are the tasks FlowMate eliminates for small businesses every day</p>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: '20px' }}></div>
           
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '40px', maxWidth: '900px', margin: '0 auto' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '40px', maxWidth: '900px', margin: '0 auto' }}>
             {[
               '📋 Copying data from emails into spreadsheets manually',
               '📧 Sending the same follow-up emails over and over',
@@ -124,7 +136,7 @@ export default function Home() {
         <h2 style={{ color: '#1B2A4A', fontSize: '36px', fontWeight: 'bold', margin: '0 0 12px 0' }}>Simple, honest pricing</h2>
         <p style={{ color: '#64748B', fontSize: '18px', margin: '0 auto 60px auto' }}>Start free. Upgrade when you are ready.</p>
         
-        <div style={{ backgroundColor: 'white', padding: '80px 20px', textAlign: 'center' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '24px', maxWidth: '900px', margin: '0 auto' }}>
           {[
             { name: 'Starter', price: 'Free', color: '#64748B', features: ['3 active automations', 'Gmail only', '5 AI suggestions/month', '1 user'] },
             { name: 'Growth', price: '£29/mo', color: '#2E75B6', features: ['Unlimited automations', 'Gmail + Sheets + Slack', 'Unlimited suggestions', 'Up to 10 users'], highlight: true },
