@@ -2,6 +2,35 @@ import { NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
+async function getValidToken(session: any): Promise<string | null> {
+  // Try the provider token first
+  if (session?.provider_token) {
+    return session.provider_token
+  }
+  
+  // Fall back to refresh token if available
+  if (session?.provider_refresh_token) {
+    try {
+      const response = await fetch('https://oauth2.googleapis.com/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          client_id: process.env.GOOGLE_CLIENT_ID!,
+          client_secret: process.env.GOOGLE_CLIENT_SECRET!,
+          refresh_token: session.provider_refresh_token,
+          grant_type: 'refresh_token',
+        })
+      })
+      const data = await response.json()
+      return data.access_token || null
+    } catch {
+      return null
+    }
+  }
+  
+  return null
+}
+
 export async function GET() {
   try {
     const cookieStore = await cookies()
@@ -21,7 +50,9 @@ export async function GET() {
 
     const { data: { session } } = await supabase.auth.getSession()
     
-    if (!session?.provider_token) {
+    const token = await getValidToken(session)
+    
+    if (!token) {
       return NextResponse.json({ error: 'No Gmail connection found' }, { status: 401 })
     }
 
@@ -30,10 +61,8 @@ export async function GET() {
     const dateFilter = thirtyDaysAgo.toISOString().split('T')[0].replace(/-/g, '/')
 
     const gmailResponse = await fetch(
-      `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=in:sent after:${dateFilter}&maxResults=50`,
-      {
-        headers: { Authorization: `Bearer ${session.provider_token}` }
-      }
+      `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=after:${dateFilter}&maxResults=50`,
+      { headers: { Authorization: `Bearer ${token}` } }
     )
 
     const gmailData = await gmailResponse.json()
@@ -46,9 +75,7 @@ export async function GET() {
       gmailData.messages.slice(0, 20).map(async (msg: any) => {
         const detail = await fetch(
           `https://gmail.googleapis.com/gmail/v1/users/me/messages/${msg.id}?format=metadata&metadataHeaders=To&metadataHeaders=Subject`,
-          {
-            headers: { Authorization: `Bearer ${session.provider_token}` }
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         )
         return detail.json()
       })

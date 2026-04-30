@@ -24,7 +24,17 @@ export async function GET(request: Request) {
         },
       }
     )
-    await supabase.auth.exchangeCodeForSession(code)
+
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+    
+    // Store refresh token if we got one
+    if (data?.session?.provider_refresh_token) {
+      await supabase.auth.updateUser({
+        data: { 
+          provider_refresh_token: data.session.provider_refresh_token 
+        }
+      })
+    }
   }
 
   return NextResponse.redirect(new URL('/dashboard', request.url))
