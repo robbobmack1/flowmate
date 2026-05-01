@@ -6,12 +6,17 @@ import { useRouter } from 'next/navigation'
 
 export default function SignUp() {
   const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
+const [password, setPassword] = useState('')
+const [error, setError] = useState('')
+const [agreed, setAgreed] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
   const handleSignUp = async () => {
+    if (!agreed) {
+      setError('Please agree to the Terms of Service and Privacy Policy')
+      return
+    }
     const { error } = await supabase.auth.signUp({ email, password })
     if (error) {
       setError(error.message)
@@ -71,12 +76,29 @@ export default function SignUp() {
 
         {error && <p style={{ color: '#FF6B6B', marginBottom: '16px', fontSize: '14px' }}>{error}</p>}
 
-        <button
-          onClick={handleSignUp}
-          style={{ width: '100%', padding: '14px', backgroundColor: '#2E75B6', color: 'white', border: 'none', borderRadius: '10px', fontSize: '16px', fontWeight: '600', cursor: 'pointer', marginBottom: '20px' }}
-        >
-          Create Account
-        </button>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '20px' }}>
+  <input
+    type="checkbox"
+    id="agree"
+    checked={agreed}
+    onChange={(e) => setAgreed(e.target.checked)}
+    style={{ marginTop: '2px', cursor: 'pointer', width: '16px', height: '16px', flexShrink: 0 }}
+  />
+  <label htmlFor="agree" style={{ color: '#A0B4C8', fontSize: '13px', lineHeight: '1.5', cursor: 'pointer' }}>
+    I agree to the{' '}
+    <a href="/terms" target="_blank" style={{ color: '#4A9FD4', textDecoration: 'none' }}>Terms of Service</a>
+    {' '}and{' '}
+    <a href="/privacy" target="_blank" style={{ color: '#4A9FD4', textDecoration: 'none' }}>Privacy Policy</a>
+  </label>
+</div>
+
+<button
+  onClick={handleSignUp}
+  disabled={!agreed}
+  style={{ width: '100%', padding: '14px', backgroundColor: agreed ? '#2E75B6' : '#2E3F5C', color: agreed ? 'white' : '#64748B', border: 'none', borderRadius: '10px', fontSize: '16px', fontWeight: '600', cursor: agreed ? 'pointer' : 'not-allowed', marginBottom: '20px', transition: 'all 0.2s' }}
+>
+  Create Account
+</button>
 
         <p style={{ textAlign: 'center', color: '#A0B4C8', fontSize: '14px', margin: '0 0 16px 0' }}>
           Already have an account?{' '}
