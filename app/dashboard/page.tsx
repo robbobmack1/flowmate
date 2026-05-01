@@ -397,9 +397,9 @@ export default function Dashboard() {
             You are one of FlowMate's first ever users! Your feedback directly shapes what we build next. It takes less than 2 minutes.
           </p>
           
-            href="https://tally.so/r/ZjPjB5"
+            <a href="https://tally.so/r/ZjPjB5"
             target="_blank"
-            <a style={{ display: 'inline-block', padding: '12px 24px', backgroundColor: '#00897B', color: 'white', borderRadius: '10px', textDecoration: 'none', fontSize: '15px', fontWeight: '600' }}
+             style={{ display: 'inline-block', padding: '12px 24px', backgroundColor: '#00897B', color: 'white', borderRadius: '10px', textDecoration: 'none', fontSize: '15px', fontWeight: '600' }}
           >
             Give Feedback
           </a>
