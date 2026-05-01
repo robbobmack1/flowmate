@@ -13,6 +13,7 @@ export default function Dashboard() {
   const [sheetsLoading, setSheetsLoading] = useState(false)
   const [sheetsAccepted, setSheetsAccepted] = useState(false)
   const [automationsAccepted, setAutomationsAccepted] = useState(0)
+  const [enhancedMode, setEnhancedMode] = useState(false)
   const supabase = createClient()
 
   useEffect(() => {
@@ -28,7 +29,16 @@ export default function Dashboard() {
           .select('*')
           .eq('user_id', user.id)
         if (automations && automations.length > 0) {
-          setAutomationsAccepted(automations.length)
+          setAutomationsAccepted(automations.length)// Load user preferences
+const { data: prefs } = await supabase
+  .from('preferences')
+  .select('*')
+  .eq('user_id', user.id)
+  .single()
+
+if (prefs) {
+  setEnhancedMode(prefs.enhanced_mode)
+}
         }
       }
     }
@@ -54,7 +64,7 @@ export default function Dashboard() {
     setSuggestion('')
     setAccepted(false)
     try {
-      const gmailRes = await fetch('/api/gmail')
+      const gmailRes = await fetch(`/api/gmail?enhanced=${enhancedMode}`)
       const gmailData = await gmailRes.json()
       if (gmailData.error) {
         setSuggestion('Could not fetch emails. Please reconnect Gmail.')
@@ -107,6 +117,27 @@ export default function Dashboard() {
       accepted_at: new Date().toISOString()
     })
     setAutomationsAccepted(prev => prev + 1)
+  }
+  const toggleEnhancedMode = async (value: boolean) => {
+    setEnhancedMode(value)
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    const { data: existing } = await supabase
+      .from('preferences')
+      .select('*')
+      .eq('user_id', user?.id)
+      .single()
+
+    if (existing) {
+      await supabase
+        .from('preferences')
+        .update({ enhanced_mode: value })
+        .eq('user_id', user?.id)
+    } else {
+      await supabase
+        .from('preferences')
+        .insert({ user_id: user?.id, enhanced_mode: value })
+    }
   }
 
   const efficiencyScore = Math.min(automationsAccepted * 10, 100)
@@ -286,7 +317,39 @@ export default function Dashboard() {
             )}
           </div>
         )}
-
+{/* Preferences Card */}
+<div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '28px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', marginBottom: '24px' }}>
+  <h2 style={{ color: '#1B2A4A', fontSize: '18px', fontWeight: 'bold', margin: '0 0 8px 0' }}>⚙️ Email Reading Preferences</h2>
+  <p style={{ color: '#64748B', fontSize: '14px', margin: '0 0 24px 0', lineHeight: '1.6' }}>
+    Choose how FlowMate reads your emails to generate suggestions.
+  </p>
+  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+    <div
+      onClick={() => toggleEnhancedMode(false)}
+      style={{ padding: '16px 20px', borderRadius: '10px', border: !enhancedMode ? '2px solid #2E75B6' : '2px solid #E2E8F0', backgroundColor: !enhancedMode ? '#EBF3FB' : 'white', cursor: 'pointer' }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: '2px solid #2E75B6', backgroundColor: !enhancedMode ? '#2E75B6' : 'white', flexShrink: 0 }}/>
+        <div>
+          <p style={{ color: '#1B2A4A', fontWeight: '600', fontSize: '15px', margin: '0 0 4px 0' }}>🔒 Basic Mode — Maximum Privacy</p>
+          <p style={{ color: '#64748B', fontSize: '13px', margin: 0 }}>Reads subject lines and senders only. No email content is ever accessed.</p>
+        </div>
+      </div>
+    </div>
+    <div
+      onClick={() => toggleEnhancedMode(true)}
+      style={{ padding: '16px 20px', borderRadius: '10px', border: enhancedMode ? '2px solid #00897B' : '2px solid #E2E8F0', backgroundColor: enhancedMode ? '#E8F5E9' : 'white', cursor: 'pointer' }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: '2px solid #00897B', backgroundColor: enhancedMode ? '#00897B' : 'white', flexShrink: 0 }}/>
+        <div>
+          <p style={{ color: '#1B2A4A', fontWeight: '600', fontSize: '15px', margin: '0 0 4px 0' }}>✨ Enhanced Mode — Better Suggestions</p>
+          <p style={{ color: '#64748B', fontSize: '13px', margin: 0 }}>Reads the first line of emails for more accurate and relevant suggestions.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
         {/* Ghost Mode Card */}
         <div style={{ backgroundColor: '#1B2A4A', borderRadius: '16px', padding: '28px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', marginBottom: '24px' }}>
           <h2 style={{ color: 'white', fontSize: '18px', fontWeight: 'bold', margin: '0 0 8px 0' }}>👻 Ghost Mode Active</h2>

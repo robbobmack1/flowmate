@@ -31,7 +31,9 @@ async function getValidToken(session: any): Promise<string | null> {
   return null
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url)
+  const enhanced = searchParams.get('enhanced') === 'true'
   try {
     const cookieStore = await cookies()
     const supabase = createServerClient(
@@ -81,11 +83,17 @@ export async function GET() {
       })
     )
 
-    const patterns = emailDetails.map((email: any) => {
+   const patterns = emailDetails.map((email: any) => {
       const headers = email.payload?.headers || []
       const to = headers.find((h: any) => h.name === 'To')?.value || 'Unknown'
       const subject = headers.find((h: any) => h.name === 'Subject')?.value || 'No subject'
-      return { to, subject }
+      
+      let preview = ''
+      if (enhanced && email.snippet) {
+        preview = email.snippet.slice(0, 100)
+      }
+      
+      return { to, subject, preview }
     })
 
     return NextResponse.json({ patterns })
