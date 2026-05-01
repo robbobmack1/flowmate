@@ -6,12 +6,12 @@ import { createClient } from '../supabase'
 export default function Dashboard() {
   const [user, setUser] = useState<any>(null)
   const [gmailConnected, setGmailConnected] = useState(false)
-  const [suggestion, setSuggestion] = useState('')
+  const [suggestions, setSuggestions] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
-  const [accepted, setAccepted] = useState(false)
-  const [sheetsSuggestion, setSheetsSuggestion] = useState('')
+  const [accepted, setAccepted] = useState<number[]>([])
+  const [sheetsSuggestions, setSheetsSuggestions] = useState<string[]>([])
   const [sheetsLoading, setSheetsLoading] = useState(false)
-  const [sheetsAccepted, setSheetsAccepted] = useState(false)
+  const [sheetsAccepted, setSheetsAccepted] = useState<number[]>([])
   const [automationsAccepted, setAutomationsAccepted] = useState(0)
   const [enhancedMode, setEnhancedMode] = useState(false)
   const supabase = createClient()
@@ -29,16 +29,15 @@ export default function Dashboard() {
           .select('*')
           .eq('user_id', user.id)
         if (automations && automations.length > 0) {
-          setAutomationsAccepted(automations.length)// Load user preferences
-const { data: prefs } = await supabase
-  .from('preferences')
-  .select('*')
-  .eq('user_id', user.id)
-  .single()
-
-if (prefs) {
-  setEnhancedMode(prefs.enhanced_mode)
-}
+          setAutomationsAccepted(automations.length)
+        }
+        const { data: prefs } = await supabase
+          .from('preferences')
+          .select('*')
+          .eq('user_id', user.id)
+          .single()
+        if (prefs) {
+          setEnhancedMode(prefs.enhanced_mode)
         }
       }
     }
@@ -59,57 +58,65 @@ if (prefs) {
     })
   }
 
-  const getSuggestion = async () => {
+  const getSuggestions = async () => {
     setLoading(true)
-    setSuggestion('')
-    setAccepted(false)
+    setSuggestions([])
+    setAccepted([])
     try {
       const gmailRes = await fetch(`/api/gmail?enhanced=${enhancedMode}`)
       const gmailData = await gmailRes.json()
       if (gmailData.error) {
-        setSuggestion('Could not fetch emails. Please reconnect Gmail.')
+        setSuggestions(['Could not fetch emails. Please reconnect Gmail.'])
         setLoading(false)
         return
       }
-      const suggestRes = await fetch('/api/suggest', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ emailPatterns: gmailData.patterns })
-      })
-      const suggestData = await suggestRes.json()
-      setSuggestion(suggestData.suggestion || 'No suggestion generated.')
+      const results: string[] = []
+      for (let i = 0; i < 3; i++) {
+        const suggestRes = await fetch('/api/suggest', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ emailPatterns: gmailData.patterns, variation: i })
+        })
+        const suggestData = await suggestRes.json()
+        if (suggestData.suggestion) results.push(suggestData.suggestion)
+      }
+      setSuggestions(results)
     } catch (error) {
-      setSuggestion('Something went wrong. Please try again.')
+      setSuggestions(['Something went wrong. Please try again.'])
     }
     setLoading(false)
   }
 
-  const getSheetsSuggestion = async () => {
+  const getSheetsSuggestions = async () => {
     setSheetsLoading(true)
-    setSheetsSuggestion('')
-    setSheetsAccepted(false)
+    setSheetsSuggestions([])
+    setSheetsAccepted([])
     try {
       const sheetsRes = await fetch('/api/sheets')
       const sheetsData = await sheetsRes.json()
       if (sheetsData.error) {
-        setSheetsSuggestion('Could not fetch sheets. Please reconnect Google Sheets.')
+        setSheetsSuggestions(['Could not fetch sheets. Please reconnect Google Sheets.'])
         setSheetsLoading(false)
         return
       }
-      const suggestRes = await fetch('/api/suggest', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ emailPatterns: sheetsData.patterns })
-      })
-      const suggestData = await suggestRes.json()
-      setSheetsSuggestion(suggestData.suggestion || 'No suggestion generated.')
+      const results: string[] = []
+      for (let i = 0; i < 3; i++) {
+        const suggestRes = await fetch('/api/suggest', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ emailPatterns: sheetsData.patterns, variation: i })
+        })
+        const suggestData = await suggestRes.json()
+        if (suggestData.suggestion) results.push(suggestData.suggestion)
+      }
+      setSheetsSuggestions(results)
     } catch (error) {
-      setSheetsSuggestion('Something went wrong. Please try again.')
+      setSheetsSuggestions(['Something went wrong. Please try again.'])
     }
     setSheetsLoading(false)
   }
 
-  const acceptAutomation = async (text: string) => {
+  const acceptAutomation = async (text: string, index: number, type: 'gmail' | 'sheets') => {
     const { data: { session } } = await supabase.auth.getSession()
     await supabase.from('automations').insert({
       user_id: session?.user?.id,
@@ -117,26 +124,25 @@ if (prefs) {
       accepted_at: new Date().toISOString()
     })
     setAutomationsAccepted(prev => prev + 1)
+    if (type === 'gmail') {
+      setAccepted(prev => [...prev, index])
+    } else {
+      setSheetsAccepted(prev => [...prev, index])
+    }
   }
+
   const toggleEnhancedMode = async (value: boolean) => {
     setEnhancedMode(value)
     const { data: { user } } = await supabase.auth.getUser()
-    
     const { data: existing } = await supabase
       .from('preferences')
       .select('*')
       .eq('user_id', user?.id)
       .single()
-
     if (existing) {
-      await supabase
-        .from('preferences')
-        .update({ enhanced_mode: value })
-        .eq('user_id', user?.id)
+      await supabase.from('preferences').update({ enhanced_mode: value }).eq('user_id', user?.id)
     } else {
-      await supabase
-        .from('preferences')
-        .insert({ user_id: user?.id, enhanced_mode: value })
+      await supabase.from('preferences').insert({ user_id: user?.id, enhanced_mode: value })
     }
   }
 
@@ -218,11 +224,11 @@ if (prefs) {
           {gmailConnected ? (
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
               <button
-                onClick={getSuggestion}
+                onClick={getSuggestions}
                 disabled={loading}
                 style={{ padding: '12px 24px', backgroundColor: loading ? '#94A3B8' : '#2E75B6', color: 'white', border: 'none', borderRadius: '10px', fontSize: '15px', cursor: loading ? 'not-allowed' : 'pointer', fontWeight: '600' }}
               >
-                {loading ? '🤖 Analysing your emails...' : '✨ Get Automation Suggestion'}
+                {loading ? '🤖 Analysing your emails...' : '✨ Get 3 Suggestions'}
               </button>
               <button
                 onClick={connectGmail}
@@ -241,23 +247,32 @@ if (prefs) {
           )}
         </div>
 
-        {/* Gmail Suggestion Card */}
-        {suggestion && (
-          <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '28px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', marginBottom: '24px', borderLeft: '5px solid #2E75B6' }}>
-            <h2 style={{ color: '#2E75B6', fontSize: '18px', fontWeight: 'bold', margin: '0 0 16px 0' }}>💡 Gmail Automation Suggestion</h2>
-            <p style={{ color: '#1B2A4A', fontSize: '16px', lineHeight: '1.7', margin: '0 0 24px 0' }}>{suggestion}</p>
-            {!accepted ? (
-              <button
-                onClick={() => { acceptAutomation(suggestion); setAccepted(true) }}
-                style={{ padding: '12px 28px', backgroundColor: '#00897B', color: 'white', border: 'none', borderRadius: '10px', fontSize: '15px', cursor: 'pointer', fontWeight: '600' }}
-              >
-                ✅ Accept This Automation
-              </button>
-            ) : (
-              <div style={{ backgroundColor: '#E8F5E9', padding: '12px 20px', borderRadius: '10px', color: '#00897B', fontWeight: '600', display: 'inline-block' }}>
-                🎉 Automation accepted! Your Efficiency Score has increased.
-              </div>
-            )}
+        {/* Gmail Suggestions */}
+        {suggestions.length > 0 && (
+          <div style={{ marginBottom: '24px' }}>
+            <h2 style={{ color: '#1B2A4A', fontSize: '18px', fontWeight: 'bold', margin: '0 0 16px 0' }}>💡 Your Gmail Suggestions</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {suggestions.map((s, i) => (
+                <div key={i} style={{ backgroundColor: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', borderLeft: '5px solid #2E75B6' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                    <span style={{ backgroundColor: '#EBF3FB', color: '#2E75B6', padding: '4px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: '600' }}>Suggestion {i + 1}</span>
+                  </div>
+                  <p style={{ color: '#1B2A4A', fontSize: '15px', lineHeight: '1.7', margin: '0 0 20px 0' }}>{s}</p>
+                  {!accepted.includes(i) ? (
+                    <button
+                      onClick={() => acceptAutomation(s, i, 'gmail')}
+                      style={{ padding: '10px 20px', backgroundColor: '#00897B', color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', cursor: 'pointer', fontWeight: '600' }}
+                    >
+                      ✅ Accept This Automation
+                    </button>
+                  ) : (
+                    <div style={{ backgroundColor: '#E8F5E9', padding: '10px 16px', borderRadius: '8px', color: '#00897B', fontWeight: '600', display: 'inline-block', fontSize: '14px' }}>
+                      🎉 Accepted!
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
@@ -275,11 +290,11 @@ if (prefs) {
           {gmailConnected ? (
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
               <button
-                onClick={getSheetsSuggestion}
+                onClick={getSheetsSuggestions}
                 disabled={sheetsLoading}
                 style={{ padding: '12px 24px', backgroundColor: sheetsLoading ? '#94A3B8' : '#00897B', color: 'white', border: 'none', borderRadius: '10px', fontSize: '15px', cursor: sheetsLoading ? 'not-allowed' : 'pointer', fontWeight: '600' }}
               >
-                {sheetsLoading ? '🤖 Analysing...' : '📊 Get Sheets Suggestion'}
+                {sheetsLoading ? '🤖 Analysing...' : '📊 Get 3 Sheets Suggestions'}
               </button>
               <button
                 onClick={connectGmail}
@@ -298,58 +313,67 @@ if (prefs) {
           )}
         </div>
 
-        {/* Sheets Suggestion Card */}
-        {sheetsSuggestion && (
-          <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '28px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', marginBottom: '24px', borderLeft: '5px solid #00897B' }}>
-            <h2 style={{ color: '#00897B', fontSize: '18px', fontWeight: 'bold', margin: '0 0 16px 0' }}>📊 Sheets Automation Suggestion</h2>
-            <p style={{ color: '#1B2A4A', fontSize: '16px', lineHeight: '1.7', margin: '0 0 24px 0' }}>{sheetsSuggestion}</p>
-            {!sheetsAccepted ? (
-              <button
-                onClick={() => { acceptAutomation(sheetsSuggestion); setSheetsAccepted(true) }}
-                style={{ padding: '12px 28px', backgroundColor: '#00897B', color: 'white', border: 'none', borderRadius: '10px', fontSize: '15px', cursor: 'pointer', fontWeight: '600' }}
-              >
-                ✅ Accept This Automation
-              </button>
-            ) : (
-              <div style={{ backgroundColor: '#E8F5E9', padding: '12px 20px', borderRadius: '10px', color: '#00897B', fontWeight: '600', display: 'inline-block' }}>
-                🎉 Automation accepted! Your Efficiency Score has increased.
-              </div>
-            )}
+        {/* Sheets Suggestions */}
+        {sheetsSuggestions.length > 0 && (
+          <div style={{ marginBottom: '24px' }}>
+            <h2 style={{ color: '#1B2A4A', fontSize: '18px', fontWeight: 'bold', margin: '0 0 16px 0' }}>📊 Your Sheets Suggestions</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {sheetsSuggestions.map((s, i) => (
+                <div key={i} style={{ backgroundColor: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', borderLeft: '5px solid #00897B' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                    <span style={{ backgroundColor: '#E8F5E9', color: '#00897B', padding: '4px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: '600' }}>Suggestion {i + 1}</span>
+                  </div>
+                  <p style={{ color: '#1B2A4A', fontSize: '15px', lineHeight: '1.7', margin: '0 0 20px 0' }}>{s}</p>
+                  {!sheetsAccepted.includes(i) ? (
+                    <button
+                      onClick={() => acceptAutomation(s, i, 'sheets')}
+                      style={{ padding: '10px 20px', backgroundColor: '#00897B', color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', cursor: 'pointer', fontWeight: '600' }}
+                    >
+                      ✅ Accept This Automation
+                    </button>
+                  ) : (
+                    <div style={{ backgroundColor: '#E8F5E9', padding: '10px 16px', borderRadius: '8px', color: '#00897B', fontWeight: '600', display: 'inline-block', fontSize: '14px' }}>
+                      🎉 Accepted!
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         )}
-{/* Preferences Card */}
-<div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '28px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', marginBottom: '24px' }}>
-  <h2 style={{ color: '#1B2A4A', fontSize: '18px', fontWeight: 'bold', margin: '0 0 8px 0' }}>⚙️ Email Reading Preferences</h2>
-  <p style={{ color: '#64748B', fontSize: '14px', margin: '0 0 24px 0', lineHeight: '1.6' }}>
-    Choose how FlowMate reads your emails to generate suggestions.
-  </p>
-  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-    <div
-      onClick={() => toggleEnhancedMode(false)}
-      style={{ padding: '16px 20px', borderRadius: '10px', border: !enhancedMode ? '2px solid #2E75B6' : '2px solid #E2E8F0', backgroundColor: !enhancedMode ? '#EBF3FB' : 'white', cursor: 'pointer' }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: '2px solid #2E75B6', backgroundColor: !enhancedMode ? '#2E75B6' : 'white', flexShrink: 0 }}/>
-        <div>
-          <p style={{ color: '#1B2A4A', fontWeight: '600', fontSize: '15px', margin: '0 0 4px 0' }}>🔒 Basic Mode — Maximum Privacy</p>
-          <p style={{ color: '#64748B', fontSize: '13px', margin: 0 }}>Reads subject lines and senders only. No email content is ever accessed.</p>
+
+        {/* Preferences Card */}
+        <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '28px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', marginBottom: '24px' }}>
+          <h2 style={{ color: '#1B2A4A', fontSize: '18px', fontWeight: 'bold', margin: '0 0 8px 0' }}>⚙️ Email Reading Preferences</h2>
+          <p style={{ color: '#64748B', fontSize: '14px', margin: '0 0 24px 0', lineHeight: '1.6' }}>Choose how FlowMate reads your emails to generate suggestions.</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div
+              onClick={() => toggleEnhancedMode(false)}
+              style={{ padding: '16px 20px', borderRadius: '10px', border: !enhancedMode ? '2px solid #2E75B6' : '2px solid #E2E8F0', backgroundColor: !enhancedMode ? '#EBF3FB' : 'white', cursor: 'pointer' }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: '2px solid #2E75B6', backgroundColor: !enhancedMode ? '#2E75B6' : 'white', flexShrink: 0 }}/>
+                <div>
+                  <p style={{ color: '#1B2A4A', fontWeight: '600', fontSize: '15px', margin: '0 0 4px 0' }}>🔒 Basic Mode — Maximum Privacy</p>
+                  <p style={{ color: '#64748B', fontSize: '13px', margin: 0 }}>Reads subject lines and senders only. No email content is ever accessed.</p>
+                </div>
+              </div>
+            </div>
+            <div
+              onClick={() => toggleEnhancedMode(true)}
+              style={{ padding: '16px 20px', borderRadius: '10px', border: enhancedMode ? '2px solid #00897B' : '2px solid #E2E8F0', backgroundColor: enhancedMode ? '#E8F5E9' : 'white', cursor: 'pointer' }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: '2px solid #00897B', backgroundColor: enhancedMode ? '#00897B' : 'white', flexShrink: 0 }}/>
+                <div>
+                  <p style={{ color: '#1B2A4A', fontWeight: '600', fontSize: '15px', margin: '0 0 4px 0' }}>✨ Enhanced Mode — Better Suggestions</p>
+                  <p style={{ color: '#64748B', fontSize: '13px', margin: 0 }}>Reads the first line of emails for more accurate and relevant suggestions.</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-    <div
-      onClick={() => toggleEnhancedMode(true)}
-      style={{ padding: '16px 20px', borderRadius: '10px', border: enhancedMode ? '2px solid #00897B' : '2px solid #E2E8F0', backgroundColor: enhancedMode ? '#E8F5E9' : 'white', cursor: 'pointer' }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: '2px solid #00897B', backgroundColor: enhancedMode ? '#00897B' : 'white', flexShrink: 0 }}/>
-        <div>
-          <p style={{ color: '#1B2A4A', fontWeight: '600', fontSize: '15px', margin: '0 0 4px 0' }}>✨ Enhanced Mode — Better Suggestions</p>
-          <p style={{ color: '#64748B', fontSize: '13px', margin: 0 }}>Reads the first line of emails for more accurate and relevant suggestions.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+
         {/* Ghost Mode Card */}
         <div style={{ backgroundColor: '#1B2A4A', borderRadius: '16px', padding: '28px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', marginBottom: '24px' }}>
           <h2 style={{ color: 'white', fontSize: '18px', fontWeight: 'bold', margin: '0 0 8px 0' }}>👻 Ghost Mode Active</h2>
@@ -365,9 +389,9 @@ if (prefs) {
             You are one of FlowMate's first ever users! Your feedback directly shapes what we build next. It takes less than 2 minutes.
           </p>
           
-            <a href="https://tally.so/r/ZjPjB5"
+            href="https://tally.so/r/ZjPjB5"
             target="_blank"
-            style={{ display: 'inline-block', padding: '12px 24px', backgroundColor: '#00897B', color: 'white', borderRadius: '10px', textDecoration: 'none', fontSize: '15px', fontWeight: '600' }}
+            <a style={{ display: 'inline-block', padding: '12px 24px', backgroundColor: '#00897B', color: 'white', borderRadius: '10px', textDecoration: 'none', fontSize: '15px', fontWeight: '600' }}
           >
             Give Feedback
           </a>
