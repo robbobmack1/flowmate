@@ -184,10 +184,18 @@ export default function Dashboard() {
       <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '40px 20px' }}>
 
         {/* Welcome Header */}
-        <div style={{ marginBottom: '32px' }}>
-          <h1 style={{ color: '#1B2A4A', fontSize: '28px', fontWeight: 'bold', margin: '0 0 8px 0' }}>Good afternoon! 👋</h1>
-          <p style={{ color: '#64748B', fontSize: '16px', margin: 0 }}>Here is your automation overview for today.</p>
-        </div>
+<div style={{ marginBottom: '32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+  <div>
+    <h1 style={{ color: '#1B2A4A', fontSize: '28px', fontWeight: 'bold', margin: '0 0 8px 0' }}>Good afternoon! 👋</h1>
+    <p style={{ color: '#64748B', fontSize: '16px', margin: 0 }}>Here is your automation overview for today.</p>
+  </div>
+  
+     <a href="/history"
+    style={{ padding: '10px 20px', backgroundColor: 'white', color: '#2E75B6', border: '1px solid #2E75B6', borderRadius: '10px', textDecoration: 'none', fontSize: '14px', fontWeight: '600' }}
+  >
+    📋 View History
+  </a>
+</div>
 
         {/* Stats Row */}
         <div style={{ marginBottom: '32px' }}>
