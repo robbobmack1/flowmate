@@ -189,7 +189,12 @@ useEffect(() => {
     <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
       <a href="tel:+447494073988" style={{ color: '#64748B', fontSize: '14px', textDecoration: 'none' }}>📞 +44 7494 073988</a>
     </div>
-    <p style={{ color: '#64748B', fontSize: '13px', margin: 0 }}>© 2026 FlowMate. All rights reserved.</p>
+    <p style={{ color: '#64748B', fontSize: '13px', margin: 0 }}>
+  © 2026 FlowMate. All rights reserved.{' '}
+  <Link href="/privacy" style={{ color: '#64748B', textDecoration: 'underline' }}>Privacy Policy</Link>
+  {' · '}
+  <Link href="/terms" style={{ color: '#64748B', textDecoration: 'underline' }}>Terms of Service</Link>
+</p>
   </div>
 </div>
 
