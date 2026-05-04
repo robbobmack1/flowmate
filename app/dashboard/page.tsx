@@ -389,7 +389,24 @@ export default function Dashboard() {
             FlowMate is quietly observing your email patterns in the background. The more you use your email, the smarter the suggestions become. Check back regularly for new automation opportunities tailored specifically to how you work.
           </p>
         </div>
-
+{/* Weekly Digest Card */}
+<div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '28px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', marginBottom: '24px', borderLeft: '5px solid #2E75B6' }}>
+  <h2 style={{ color: '#2E75B6', fontSize: '18px', fontWeight: 'bold', margin: '0 0 8px 0' }}>📬 Weekly Email Digest</h2>
+  <p style={{ color: '#64748B', fontSize: '14px', margin: '0 0 20px 0', lineHeight: '1.6' }}>
+    Get a weekly summary of your automations, time saved and efficiency score sent straight to your inbox every Monday morning.
+  </p>
+  <button
+    onClick={async () => {
+      const res = await fetch('/api/digest', { method: 'POST' })
+      const data = await res.json()
+      if (data.success) alert('Weekly digest sent to your email!')
+      else alert('Something went wrong. Please try again.')
+    }}
+    style={{ padding: '12px 24px', backgroundColor: '#2E75B6', color: 'white', border: 'none', borderRadius: '10px', fontSize: '15px', cursor: 'pointer', fontWeight: '600' }}
+  >
+    📧 Send Me This Week's Digest
+  </button>
+</div>
         {/* Feedback Card */}
         <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '28px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', marginTop: '24px', borderLeft: '5px solid #00897B' }}>
           <h2 style={{ color: '#00897B', fontSize: '18px', fontWeight: 'bold', margin: '0 0 8px 0' }}>💬 Share Your Feedback</h2>
