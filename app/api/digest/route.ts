@@ -40,7 +40,7 @@ export async function POST() {
 
     // Send the digest email
     await resend.emails.send({
-      from: 'FlowMate <onboarding@resend.dev>',
+      from: 'FlowMate <hello@flowmateai.co.uk>',
       to: user.email!,
       subject: '📊 Your Weekly FlowMate Digest',
       html: `
