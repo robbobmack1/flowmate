@@ -1,128 +1,113 @@
 import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { createClient } from '@supabase/supabase-js'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-export async function POST() {
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+export async function POST(request: Request) {
   try {
-    const cookieStore = await cookies()
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() { return cookieStore.getAll() },
-          setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options))
-          },
-        },
-      }
-    )
+    // Security check — only allow Vercel cron or manual trigger with secret
+    const authHeader = request.headers.get('authorization')
+    const isVercelCron = request.headers.get('x-vercel-cron') === '1'
+    const isManual = authHeader === `Bearer ${process.env.CRON_SECRET}`
 
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
-      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+    if (!isVercelCron && !isManual) {
+      return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
     }
 
-    // Get user's automations
-    const { data: automations } = await supabase
-      .from('automations')
-      .select('*')
-      .eq('user_id', user.id)
+    // Get all users from Supabase auth
+    const { data: { users }, error } = await supabase.auth.admin.listUsers()
 
-    const totalAutomations = automations?.length || 0
-    const timeSaved = totalAutomations * 3
-    const efficiencyScore = Math.min(totalAutomations * 10, 100)
+    if (error || !users) {
+      return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 })
+    }
 
-    // Send the digest email
-    await resend.emails.send({
-      from: 'FlowMate <hello@flowmateai.co.uk>',
-      to: user.email!,
-      subject: '📊 Your Weekly FlowMate Digest',
-      html: `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1">
-        </head>
-        <body style="margin: 0; padding: 0; background-color: #F0F4F8; font-family: Arial, sans-serif;">
-          
-          <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
-            
-            <!-- Header -->
-            <div style="background-color: #1B2A4A; borderRadius: 16px; padding: 32px; text-align: center; margin-bottom: 24px; border-radius: 16px;">
-              <h1 style="color: white; font-size: 28px; margin: 0 0 8px 0;">FlowMate</h1>
-              <p style="color: #A0B4C8; font-size: 16px; margin: 0;">Your weekly automation digest</p>
-            </div>
+    let sent = 0
+    let failed = 0
 
-            <!-- Greeting -->
-            <div style="background-color: white; border-radius: 16px; padding: 28px; margin-bottom: 24px;">
-              <h2 style="color: #1B2A4A; font-size: 22px; margin: 0 0 12px 0;">Good morning! 👋</h2>
-              <p style="color: #64748B; font-size: 16px; line-height: 1.6; margin: 0;">
-                Here is your FlowMate summary for this week. You are making great progress!
-              </p>
-            </div>
+    for (const user of users) {
+      if (!user.email) continue
 
-            <!-- Stats -->
-            <div style="display: grid; margin-bottom: 24px;">
-              <table width="100%" cellpadding="0" cellspacing="0">
-                <tr>
-                  <td width="32%" style="padding-right: 8px;">
-                    <div style="background-color: white; border-radius: 12px; padding: 20px; text-align: center; border-top: 4px solid #2E75B6;">
+      try {
+        // Get user's automations
+        const { data: automations } = await supabase
+          .from('automations')
+          .select('*')
+          .eq('user_id', user.id)
+
+        const totalAutomations = automations?.length || 0
+        const timeSaved = totalAutomations * 3
+        const efficiencyScore = Math.min(totalAutomations * 10, 100)
+
+        await resend.emails.send({
+          from: 'FlowMate <hello@flowmateai.co.uk>',
+          to: user.email,
+          subject: '📊 Your Weekly FlowMate Digest',
+          html: `
+            <!DOCTYPE html>
+            <html>
+            <body style="margin: 0; padding: 0; background-color: #F0F4F8; font-family: Arial, sans-serif;">
+              <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+                
+                <div style="background-color: #1B2A4A; border-radius: 16px; padding: 32px; text-align: center; margin-bottom: 24px;">
+                  <h1 style="color: white; font-size: 28px; margin: 0 0 8px 0;">FlowMate</h1>
+                  <p style="color: #A0B4C8; font-size: 16px; margin: 0;">Your weekly automation digest</p>
+                </div>
+
+                <div style="background-color: white; border-radius: 16px; padding: 28px; margin-bottom: 24px;">
+                  <h2 style="color: #1B2A4A; font-size: 22px; margin: 0 0 12px 0;">Good morning! 👋</h2>
+                  <p style="color: #64748B; font-size: 16px; line-height: 1.6; margin: 0;">Here is your FlowMate summary for this week!</p>
+                </div>
+
+                <table width="100%" cellpadding="0" cellspacing="8" style="margin-bottom: 24px;">
+                  <tr>
+                    <td width="33%" style="background-color: white; border-radius: 12px; padding: 20px; text-align: center; border-top: 4px solid #2E75B6;">
                       <p style="color: #64748B; font-size: 11px; font-weight: 600; text-transform: uppercase; margin: 0 0 8px 0;">Efficiency Score</p>
                       <p style="color: #1B2A4A; font-size: 32px; font-weight: bold; margin: 0;">${efficiencyScore}<span style="font-size: 16px; color: #64748B;">/100</span></p>
-                    </div>
-                  </td>
-                  <td width="32%" style="padding: 0 4px;">
-                    <div style="background-color: white; border-radius: 12px; padding: 20px; text-align: center; border-top: 4px solid #00897B;">
+                    </td>
+                    <td width="33%" style="background-color: white; border-radius: 12px; padding: 20px; text-align: center; border-top: 4px solid #00897B;">
                       <p style="color: #64748B; font-size: 11px; font-weight: 600; text-transform: uppercase; margin: 0 0 8px 0;">Time Saved</p>
                       <p style="color: #1B2A4A; font-size: 32px; font-weight: bold; margin: 0;">${timeSaved}<span style="font-size: 16px; color: #64748B;">hrs</span></p>
-                    </div>
-                  </td>
-                  <td width="32%" style="padding-left: 8px;">
-                    <div style="background-color: white; border-radius: 12px; padding: 20px; text-align: center; border-top: 4px solid #E65100;">
+                    </td>
+                    <td width="33%" style="background-color: white; border-radius: 12px; padding: 20px; text-align: center; border-top: 4px solid #E65100;">
                       <p style="color: #64748B; font-size: 11px; font-weight: 600; text-transform: uppercase; margin: 0 0 8px 0;">Automations</p>
                       <p style="color: #1B2A4A; font-size: 32px; font-weight: bold; margin: 0;">${totalAutomations}</p>
-                    </div>
-                  </td>
-                </tr>
-              </table>
-            </div>
+                    </td>
+                  </tr>
+                </table>
 
-            <!-- CTA -->
-            <div style="background-color: #1B2A4A; border-radius: 16px; padding: 28px; text-align: center; margin-bottom: 24px;">
-              <h2 style="color: white; font-size: 20px; margin: 0 0 12px 0;">Ready for new suggestions? ✨</h2>
-              <p style="color: #A0B4C8; font-size: 15px; margin: 0 0 24px 0;">
-                Head to your dashboard to get this week's fresh automation suggestions based on your latest email patterns.
-              </p>
-              <a href="https://flowmate-nine.vercel.app/dashboard" 
-                style="display: inline-block; background-color: #2E75B6; color: white; padding: 14px 32px; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 16px;">
-                Go to My Dashboard →
-              </a>
-            </div>
+                <div style="background-color: #1B2A4A; border-radius: 16px; padding: 28px; text-align: center; margin-bottom: 24px;">
+                  <h2 style="color: white; font-size: 20px; margin: 0 0 12px 0;">Ready for new suggestions? ✨</h2>
+                  <p style="color: #A0B4C8; font-size: 15px; margin: 0 0 24px 0;">Head to your dashboard to get this week's fresh automation suggestions.</p>
+                  <a href="https://flowmateai.co.uk/dashboard" style="display: inline-block; background-color: #2E75B6; color: white; padding: 14px 32px; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 16px;">
+                    Go to My Dashboard
+                  </a>
+                </div>
 
-            <!-- Footer -->
-            <div style="text-align: center; padding: 20px;">
-              <p style="color: #94A3B8; font-size: 13px; margin: 0;">
-                © 2026 FlowMate. You are receiving this because you have a FlowMate account.
-              </p>
-            </div>
+                <div style="text-align: center; padding: 20px;">
+                  <p style="color: #94A3B8; font-size: 13px; margin: 0;">© 2026 FlowMate. flowmateai.co.uk</p>
+                </div>
 
-          </div>
-        </body>
-        </html>
-      `
-    })
+              </div>
+            </body>
+            </html>
+          `
+        })
+        sent++
+      } catch (e) {
+        failed++
+      }
+    }
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true, sent, failed })
 
   } catch (error) {
-    console.error('Digest error:', error)
-    return NextResponse.json({ error: 'Failed to send digest' }, { status: 500 })
+    console.error('Cron error:', error)
+    return NextResponse.json({ error: 'Failed to run digest' }, { status: 500 })
   }
 }
