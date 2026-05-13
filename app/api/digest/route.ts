@@ -6,26 +6,34 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
+
 
 export async function POST(request: Request) {
   try {
-    // Security check — only allow Vercel cron or manual trigger with secret
     const authHeader = request.headers.get('authorization')
     const isVercelCron = request.headers.get('x-vercel-cron') === '1'
     const isManual = authHeader === `Bearer ${process.env.CRON_SECRET}`
+
+    console.log('Auth header:', authHeader, 'CRON_SECRET:', process.env.CRON_SECRET)
 
     if (!isVercelCron && !isManual) {
       return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
     }
 
-    // Get all users from Supabase auth
-    const { data: { users }, error } = await supabase.auth.admin.listUsers()
+    console.log('Service key exists:', !!process.env.SUPABASE_SERVICE_ROLE_KEY)
 
-    if (error || !users) {
+    const { data: users, error: usersError } = await supabase
+      .from('users')
+      .select('*')
+
+    console.log('Users found:', users?.length, 'Error:', usersError)
+
+    if (usersError || !users) {
       return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 })
     }
+    
 
     let sent = 0
     let failed = 0
@@ -34,7 +42,6 @@ export async function POST(request: Request) {
       if (!user.email) continue
 
       try {
-        // Get user's automations
         const { data: automations } = await supabase
           .from('automations')
           .select('*')
@@ -99,15 +106,16 @@ export async function POST(request: Request) {
           `
         })
         sent++
-      } catch (e) {
+      } catch (e: any) {
+        console.error('Failed to send to:', user.email, e.message)
         failed++
       }
     }
 
     return NextResponse.json({ success: true, sent, failed })
 
-  } catch (error) {
-    console.error('Cron error:', error)
-    return NextResponse.json({ error: 'Failed to run digest' }, { status: 500 })
+  } catch (error: any) {
+    console.error('Cron error:', error.message, error)
+    return NextResponse.json({ error: 'Failed to run digest: ' + error.message }, { status: 500 })
   }
 }

@@ -17,11 +17,18 @@ const [agreed, setAgreed] = useState(false)
       setError('Please agree to the Terms of Service and Privacy Policy')
       return
     }
-    const { error } = await supabase.auth.signUp({ email, password })
+    const { data, error } = await supabase.auth.signUp({ email, password })
     if (error) {
       setError(error.message)
     } else {
-      router.push('/welcome')
+      // Save user email to our users table
+      if (data.user) {
+        await supabase.from('users').insert({
+          user_id: data.user.id,
+          email: data.user.email
+        })
+      }
+      router.push('/auth/confirm')
     }
   }
 

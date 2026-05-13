@@ -396,10 +396,13 @@ export default function Dashboard() {
     Get a weekly summary of your automations, time saved and efficiency score sent straight to your inbox every Monday morning.
   </p>
   <button
-    onClick={async () => {
-      const res = await fetch('/api/digest', { method: 'POST' })
+   onClick={async () => {
+      const res = await fetch('/api/digest', { 
+        method: 'POST',
+        headers: { 'authorization': 'Bearer flowmate-cron-2026' }
+      })
       const data = await res.json()
-      if (data.success) alert('Weekly digest sent to your email!')
+      if (data.success) alert(`Digest sent! ${data.sent} emails delivered.`)
       else alert('Something went wrong. Please try again.')
     }}
     style={{ padding: '12px 24px', backgroundColor: '#2E75B6', color: 'white', border: 'none', borderRadius: '10px', fontSize: '15px', cursor: 'pointer', fontWeight: '600' }}
